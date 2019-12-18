@@ -2101,12 +2101,19 @@ def parse($TEXT, options):
             if isinstance(expr, ast.SymbolRef) and expr.name is "JS":
                 # raw JavaScript chunk of code
                 str_ = expression(False)
-                if not (isinstance(str_, ast.String)):
+                if (isinstance(str_, ast.Array)):
+                    path = require("path")
+                    curdir = path.dirname(S.token.file)
+                    jsfile = path.normalize(path.join(curdir, str_.elements[0].value))
+                    jscode = require("fs").readFileSync(jsfile)
+                elif not (isinstance(str_, ast.String)):
                     token_error(prev(), "Compile-time function JS() can't evaluate variables or expressions")
+                else:
+                    jscode = str_.value
 
                 ret = ast.Verbatim({
                     start: start,
-                    value: str_.value,
+                    value: jscode,
                     end: prev()
                 })
                 expect(")")
