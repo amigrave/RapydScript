@@ -777,7 +777,14 @@ def parse($TEXT, options):
         src_code = filename = None
         modpath = key.replace(/\./g, '/')
 
-        for location in import_dirs:
+        import_filename = S.input.context().filename
+        if import_filename.includes("/"):
+            import_paths = import_dirs[:]
+            import_paths.unshift(import_filename.split("/")[0:-1].join("/"))
+        else:
+            import_paths = import_dirs
+
+        for location in import_paths:
             if location:
                 try:
                     data, filename = safe_read(location + '/' + modpath)
